@@ -9,6 +9,7 @@ let health = 100;
 let happiness = 100;
 let hygiene = 100;
 let day = 1;
+
 loadSprite("house_bg", "sprites/house_bg.jpg");
 loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
     scene("start", () => {
@@ -43,7 +44,7 @@ loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
 
 
         onClick("start", () => {
-            go("supermarket");
+            go("house");
         });
     });
 
@@ -51,7 +52,7 @@ loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
 });
 
 function heatwaveEffect() {
-    waterLevel -= 80;
+    waterLevel -= 10;
 }
 
 function findWellEffect() {
@@ -84,6 +85,15 @@ scene("house", () => {
         fixed(),
     ]);
 
+    const infoBox = add([
+        pos(0, 0),
+        rect(screen.width/2, screen.height/3),
+        color(0,0,0),
+        opacity(0.5),
+        outline(4),
+        area(),
+    ])
+
     background.scale = vec2(width() / background.width, height() / background.height);
 
     const dayText = add([
@@ -96,19 +106,19 @@ scene("house", () => {
         pos(50, 200),
     ]);
     add([
-        rect(90, 300),
-        pos(10, height() - 310),
+        rect(100, 300),
+        pos(10, height() * 0.7),
         anchor("left"),
         "water",
         color(0, 0, 0),
     ]);
 
     const waterMeter = add([
-        rect(90, 300),
-        pos(10, height() - 310),
+        rect(100, 300),
+        pos(10, height() * 0.7),
         anchor("left"),
         "water",
-        color(0, 0, 255),
+        color(11, 193, 246),
     ]);
 
     const healthBar = add([
@@ -136,7 +146,7 @@ scene("house", () => {
     ]);
 
     const waterDisplay = add([
-        text(`Water: ${waterLevel}`, { size: 50 }),
+        text(`Water: ${waterLevel}`, { size: screen.height/50 }),
         pos(45, 280),
         anchor("left"),
         rotate(),
@@ -187,6 +197,7 @@ scene("house", () => {
         waterDisplay.text = `Water: ${waterLevel}`;
 
         waterMeter.height = 300 * (waterLevel / 100);
+        waterMeter.pos.y = height() * 0.7 + (300 - waterMeter.height)
         healthBar.width = 200 * (health / 100);
         hygieneBar.width = 200 * (hygiene / 100);
         happinessBar.width = 200 * (happiness / 100);
