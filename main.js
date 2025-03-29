@@ -7,7 +7,8 @@ kaplay({
 });
 
 // Define game variables
-let waterLevel = 0;
+let waterLevel = 100;
+let day = 1;
 
 loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
     scene("start", () => {
@@ -60,6 +61,99 @@ scene("house", () => {
         anchor("center"),
     ]);
 
+    const waterMeter = add([
+        rect(100,600),
+        anchor("left"),
+        "water",
+    ])
+
+
+    const nextDayButton = add([
+        rect(400, 100),
+        pos(center().x, 500),
+        anchor("center"),
+        area(),
+        "nextDay",
+    ]);
+
+    onClick("nextDay", () => {
+        
+        day += 1;
+    });
 
 });
 
+const events = [
+    { text: "A heatwave hits! Lose 2 water.", effect: () => waterLevel -= 2 },
+    { text: "You find an old well! Gain 3 water.", effect: () => waterLevel += 3 },
+    { text: "You have a normal day. No changes.", effect: () => {} },
+    { text: "Bandits steal some water! Lose 1 water.", effect: () => waterLevel -= 1 },
+];
+
+function randomEvent() {
+    let event = events[Math.floor(Math.random() * events.length)];
+    event.effect();
+    return event.text;
+}
+
+scene("house", () => {
+    const dayText = add([
+        text(`Day ${day}`, { size: 50 }),
+        pos(50, 50),
+    ]);
+
+    const waterDisplay = add([
+        text(`Water: ${waterLevel}`, { size: 50 }),
+        pos(50, 100),
+    ]);
+
+    const eventText = add([
+        text("What's going to happen today?", { size: 30 }),
+        pos(50, 200),
+    ]);
+
+    const nextDayButton = add([
+        rect(400, 100),
+        pos(center().x, 500),
+        anchor("center"),
+        area(),
+        "nextDay",
+    ]);
+
+    add([
+        text("Next Day", { size: 45 }),
+        pos(center().x, 500),
+        anchor("center"),
+        color(0, 0, 0),
+    ]);
+
+    onClick("nextDay", () => {
+        day++;
+        let eventMessage = randomEvent();
+        eventText.text = eventMessage;
+        waterDisplay.text = `Water: ${waterLevel}`;
+
+        if (waterLevel <= 0) {
+            go("gameOver");
+        }
+    });
+});
+
+scene("gameOver", () => {
+    add([
+        text("You ran out of water!", { size: 70 }),
+        pos(center().x, center().y),
+        anchor("center"),
+    ]);
+
+    add([
+        text("Game Over", { size: 50 }),
+        pos(center().x, center().y + 100),
+        anchor("center"),
+    ]);
+});
+
+go("start");
+
+
+onUpdate("dayText")
