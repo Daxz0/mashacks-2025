@@ -15,6 +15,48 @@ const player = add([
   color(255, 0, 0), // Set the color to red (optional)
 ]);
 
+// Array to hold obstacle objects
+const obstacles = [
+    {
+      x: 300,
+      y: 200,
+      width: 100,
+      height: 20,
+      color: [255, 255, 255],
+    },
+    {
+      x: 500,
+      y: 150,
+      width: 80,
+      height: 30,
+      color: [255, 255, 255], // Green color
+    },
+    {
+      x: 700,
+      y: 100,
+      width: 120,
+      height: 25,
+      color: [255, 255, 255], // Blue color
+    },
+    // Add more obstacles as needed
+  ];
+  
+  // Function to create obstacle game objects
+  function createObstacles() {
+    obstacles.forEach((obstacle) => {
+      add([
+        rect(obstacle.width, obstacle.height), // Rectangle shape
+        pos(obstacle.x, obstacle.y),           // Position
+        area(),                               // Enable collision detection
+        color(...obstacle.color),             // Set color
+        "obstacle",                           // Tag for identification
+      ]);
+    });
+  }
+
+  createObstacles();
+
+
 let width = screen.width;
 let height = screen.height;
 
@@ -25,7 +67,7 @@ let moveX = 0;
 let moveY = 0;
 
 onKeyPress((key) => {
-    debug.log(key);
+    debug.log(player.pos);
 });
 
 onKeyRelease((key) => {
@@ -35,28 +77,47 @@ onKeyRelease((key) => {
 
 var direction = "" //either up down (ud) or left right (lr)
 
-// Register keydown events for movement
 onKeyDown("up", () => {
     if(direction != "rl"){
-        player.moveBy(0, -speed * dt());
-        direction = "ud";
+        if(player.pos.y - speed * dt() > 0){
+            player.moveBy(0, -speed * dt());
+            direction = "ud";
+        }
     }
 });
 onKeyDown("down", () => {
     if(direction != "rl"){
-        player.moveBy(0, speed * dt());
-        direction = "ud";
+        if(player.pos.y + player.height + speed * dt() < height){
+            player.moveBy(0, speed * dt());
+            direction = "ud";
+        }
     }
 });
 onKeyDown("left", () => {
     if(direction != "ud"){
-        player.moveBy(-speed * dt(),0);
-        direction = "rl";
+        if(player.pos.x - speed * dt() > 0){
+
+            player.moveBy(-speed * dt(),0);
+            direction = "rl";
+        }
     }
 });
 onKeyDown("right", () => {
-    if(direction != "ud"){
-        player.moveBy(speed * dt(),0);
-        direction = "rl";
+    if(direction != "ud"){        
+        if(player.pos.x + player.width + speed * dt() < width){
+
+            player.moveBy(speed * dt(),0);
+            direction = "rl";
+        }
     }
 });
+
+function isColliding(player, movement) {
+    const futurePos = player.pos.add(movement);
+    for (const obstacle of obstacles) {
+      if (futurePos.isInRect(obstacle.pos, obstacle.width, obstacle.height)) {
+        return true; // Collision detected
+      }
+    }
+    return false; // No collision
+}
