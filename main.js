@@ -11,6 +11,7 @@ let hygiene = 100;
 let day = 1;
 
 loadSprite("house_bg", "sprites/house_bg.jpg");
+loadSprite("watermaster", "sprites/watermaster.png");
 loadSprite("water_sprite", "sprites/water_sprite.png");
 loadSprite("player", "sprites/player.png");
 loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
@@ -46,12 +47,14 @@ loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
 
 
         onClick("start", () => {
-            go("house");
+            go("cutscene");
         });
     });
 
     go("start");
 });
+
+
 
 function heatwaveEffect() {
     waterLevel -= 10;
@@ -74,11 +77,55 @@ const events = [
     { text: "Bandits steal some water! Lose 1 water.", effect: banditAttackEffect },
 ];
 
+const textLines = [
+    "Hi, I'm your local watermaster",
+    "There have been massive fires recently.",
+    "In order to combat these, we will need to turn off our city's water supply",
+    "We will turn back on the water supply in 30 days",
+    "Survive if you can. We are glad you were able to do your part.",
+    "..."
+]
+
 function randomEvent() {
     let event = events[Math.floor(Math.random() * events.length)];
     event.effect();
     return event.text;
 }
+
+scene("cutscene", () => {
+    const master = add([
+        sprite("watermaster"),
+        pos(width() - 700, 100),
+        scale(0.2, 0.2),
+    ]);
+
+
+    const dialogue = add([
+        pos(0, 0),
+        anchor("bot"),
+        rect(screen.width, screen.height/5),
+        color(0,0,0),
+        opacity(0.5),
+    ])
+
+    const textBox = add([
+        pos(100, 100), 
+        text(textLines[0], { size: 50 }), 
+        area(), 
+        color(255, 0, 0), 
+    ]);
+
+    let currentIndex = 0;
+
+    textBox.onClick(() => {
+        currentIndex = currentIndex + 1;
+        textBox.text = textLines[currentIndex];
+        if(currentIndex == textLines.length){
+            go("supermarket");
+        }
+    });
+
+})
 
 scene("house", () => {
     const background = add([
