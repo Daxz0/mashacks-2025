@@ -4,13 +4,12 @@ kaplay({
     background: [0, 0, 0],
 });
 
-// Define game variables
 let waterLevel = 100;
 let health = 100;
 let happiness = 100;
 let hygiene = 100;
 let day = 1;
-loadSprite("house_bg", "sprites/house_bg.jpg")
+loadSprite("house_bg", "sprites/house_bg.jpg");
 loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
     scene("start", () => {
         const background = add([
@@ -79,7 +78,6 @@ function randomEvent() {
 }
 
 scene("house", () => {
-
     const background = add([
         sprite("house_bg"),
         pos(0, 0),
@@ -115,7 +113,7 @@ scene("house", () => {
 
     const healthBar = add([
         rect(200, 20),
-        pos(width()-25, 70),
+        pos(width() - 25, 70),
         anchor("topright"),
         "health",
         color(0, 255, 0),
@@ -123,7 +121,7 @@ scene("house", () => {
 
     const hygieneBar = add([
         rect(200, 20),
-        pos(width()-25, 120),
+        pos(width() - 25, 120),
         anchor("topright"),
         "hygiene",
         color(255, 255, 0),
@@ -131,7 +129,7 @@ scene("house", () => {
 
     const happinessBar = add([
         rect(200, 20),
-        pos(width()-25, 170),
+        pos(width() - 25, 170),
         anchor("topright"),
         "happiness",
         color(255, 165, 0),
@@ -146,19 +144,19 @@ scene("house", () => {
 
     add([
         text("Health", { size: 20 }),
-        pos(width()-25, 50),
+        pos(width() - 25, 50),
         anchor("topright"),
     ]);
 
     add([
         text("Hygiene", { size: 20 }),
-        pos(width()-25, 100),
+        pos(width() - 25, 100),
         anchor("topright"),
     ]);
 
     add([
         text("Happiness", { size: 20 }),
-        pos(width()-25, 150),
+        pos(width() - 25, 150),
         anchor("topright"),
     ]);
 
@@ -207,6 +205,7 @@ scene("supermarket", () => {
         pos(100, 100),
         area(),
         color(255, 0, 0),
+        "player",
     ]);
 
     const obstacles = [
@@ -222,25 +221,25 @@ scene("supermarket", () => {
             y: 150,
             width: 80,
             height: 30,
-            color: [255, 255, 255], // Green color
+            color: [255, 255, 255],
         },
         {
             x: 700,
             y: 100,
             width: 120,
             height: 25,
-            color: [255, 255, 255], // Blue color
+            color: [255, 255, 255],
         },
     ];
 
     function createObstacles() {
         obstacles.forEach((obstacle) => {
             add([
-                rect(obstacle.width, obstacle.height), // Rectangle shape
-                pos(obstacle.x, obstacle.y),           // Position
-                area(),                               // Enable collision detection
-                color(...obstacle.color),             // Set color
-                "obstacle",   
+                rect(obstacle.width, obstacle.height),
+                pos(obstacle.x, obstacle.y),
+                area(),
+                color(...obstacle.color),
+                "obstacle",
             ]);
         });
     }
@@ -276,6 +275,7 @@ scene("supermarket", () => {
             }
         }
     });
+
     onKeyDown("down", () => {
         if (direction != "rl") {
             if (player.pos.y + player.height + speed * dt() < height) {
@@ -285,6 +285,7 @@ scene("supermarket", () => {
             }
         }
     });
+
     onKeyDown("left", () => {
         if (direction != "ud") {
             if (player.pos.x - speed * dt() > 0) {
@@ -294,6 +295,7 @@ scene("supermarket", () => {
             }
         }
     });
+
     onKeyDown("right", () => {
         if (direction != "ud") {
             if (player.pos.x + player.width + speed * dt() < width) {
@@ -309,23 +311,12 @@ scene("supermarket", () => {
     });
 
     player.onCollide("obstacle", () => {
-        debug.log("hit");
         if (direction === "ud") {
             player.moveBy(0, -moveY);
         } else if (direction === "rl") {
             player.moveBy(-moveX, 0);
         }
     });
-
-    function isColliding(player, movement) {
-        const futurePos = player.pos.add(movement);
-        for (const obstacle of obstacles) {
-            if (player.isColliding("obstacle")) {
-                return true;
-            }
-        }
-        return false;
-    }
 });
 
 scene("gameOver", () => {
@@ -355,3 +346,6 @@ scene("gameWin", () => {
         anchor("center"),
     ]);
 });
+
+
+//test change
