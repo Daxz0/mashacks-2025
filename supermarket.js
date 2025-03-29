@@ -49,12 +49,13 @@ const obstacles = [
         pos(obstacle.x, obstacle.y),           // Position
         area(),                               // Enable collision detection
         color(...obstacle.color),             // Set color
-        "obstacle",                           // Tag for identification
+        "obstacle",   
       ]);
     });
   }
 
-  createObstacles();
+createObstacles();
+
 
 
 let width = screen.width;
@@ -72,6 +73,8 @@ onKeyPress((key) => {
 
 onKeyRelease((key) => {
     direction = ""
+    moveX = 0
+    moveY = 0
 });
 
 
@@ -80,7 +83,8 @@ var direction = "" //either up down (ud) or left right (lr)
 onKeyDown("up", () => {
     if(direction != "rl"){
         if(player.pos.y - speed * dt() > 0){
-            player.moveBy(0, -speed * dt());
+            moveX = 0
+            moveY = -speed * dt();
             direction = "ud";
         }
     }
@@ -88,7 +92,8 @@ onKeyDown("up", () => {
 onKeyDown("down", () => {
     if(direction != "rl"){
         if(player.pos.y + player.height + speed * dt() < height){
-            player.moveBy(0, speed * dt());
+            moveX = 0
+            moveY = speed * dt();
             direction = "ud";
         }
     }
@@ -96,8 +101,8 @@ onKeyDown("down", () => {
 onKeyDown("left", () => {
     if(direction != "ud"){
         if(player.pos.x - speed * dt() > 0){
-
-            player.moveBy(-speed * dt(),0);
+            moveX = -speed * dt();
+            moveY = 0;
             direction = "rl";
         }
     }
@@ -105,19 +110,35 @@ onKeyDown("left", () => {
 onKeyDown("right", () => {
     if(direction != "ud"){        
         if(player.pos.x + player.width + speed * dt() < width){
-
-            player.moveBy(speed * dt(),0);
+            moveX = speed * dt();
+            moveY = 0;
             direction = "rl";
         }
     }
 });
 
+
+onUpdate(() => {
+    player.moveBy(moveX, moveY);
+})
+
+player.onCollide("obstacle", () => {
+    debug.log("hit");
+    if(direction === "ud"){
+        player.moveBy(0,-moveY);
+    } else if(direction === "rl"){
+        player.moveBy(-moveX, 0);
+    }
+})
+
 function isColliding(player, movement) {
     const futurePos = player.pos.add(movement);
     for (const obstacle of obstacles) {
-      if (futurePos.isInRect(obstacle.pos, obstacle.width, obstacle.height)) {
-        return true; // Collision detected
-      }
+
+      
+        if (player.isColliding("obstacle")) {
+            return true;
+        }
     }
-    return false; // No collision
+    return false;
 }
