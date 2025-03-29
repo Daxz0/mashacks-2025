@@ -202,16 +202,13 @@ scene("house", () => {
 });
 
 scene("supermarket", () => {
-    // Create the player object as a rectangle
     const player = add([
-        rect(40, 60), // Draw a rectangle with width 40 and height 60
-        pos(100, 100), // Set the initial position
-        area(),        // Enable collision detection
-        body(),        // Enable physics (optional, for gravity and collisions)
-        color(255, 0, 0), // Set the color to red (optional)
+        rect(40, 60),
+        pos(100, 100),
+        area(),
+        color(255, 0, 0),
     ]);
 
-    // Array to hold obstacle objects
     const obstacles = [
         {
             x: 300,
