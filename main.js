@@ -4,13 +4,15 @@ kaplay({
     background: [0, 0, 0],
 });
 
-let waterLevel = 100;
+let waterLevel = 0;
 let health = 100;
 let happiness = 100;
 let hygiene = 100;
 let day = 1;
 
 loadSprite("house_bg", "sprites/house_bg.jpg");
+loadSprite("water_sprite", "sprites/water_sprite.png");
+loadSprite("player", "sprites/player.png");
 loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
     scene("start", () => {
         const background = add([
@@ -212,62 +214,53 @@ scene("house", () => {
 
 scene("supermarket", () => {
     const player = add([
-        rect(40, 60),
+        sprite("player"),
         pos(100, 100),
         area(),
         color(255, 0, 0),
         "player",
     ]);
 
-    const obstacles = [
-        {
-            x: 300,
-            y: 200,
-            width: 100,
-            height: 20,
-            color: [255, 255, 255],
-        },
-        {
-            x: 500,
-            y: 150,
-            width: 80,
-            height: 30,
-            color: [255, 255, 255],
-        },
-        {
-            x: 700,
-            y: 100,
-            width: 120,
-            height: 25,
-            color: [255, 255, 255],
-        },
-    ];
+    function createWaterCollectibles() {
+        let x = rand(50, width() - 50);
+        let y = rand(50, height() - 50);
 
-    function createObstacles() {
-        obstacles.forEach((obstacle) => {
-            add([
-                rect(obstacle.width, obstacle.height),
-                pos(obstacle.x, obstacle.y),
-                area(),
-                color(...obstacle.color),
-                "obstacle",
-            ]);
-        });
+        let waterDrop = add([
+            sprite("water_sprite"),
+            scale(0.1,0.1),
+            pos(x, y),
+            area(),
+            "water_collectible",
+        ]);
     }
 
-    createObstacles();
+    createWaterCollectibles();
 
-    let width = screen.width;
-    let height = screen.height;
+    const gameWidth = width();
+    const gameHeight = height();
 
-    const speed = screen.width / 2;
+    const speed = gameWidth / 2;
 
     let moveX = 0;
     let moveY = 0;
+    let timeLeft = 60;
 
-    onKeyPress((key) => {
-        debug.log(player.pos);
-    });
+    const timerText = add([
+        text(`Time: ${timeLeft}`, { size: 40 }),
+        pos(center().x, 50),
+        anchor("center"),
+        "timer"
+    ]);
+
+    onUpdate("timer", (timerText) => {
+        timeLeft -= dt();
+        timerText.text = `Time: ${Math.floor(timeLeft)}`;
+        if (timeLeft <= 0) {
+            go("house");
+            destroy(timerText);
+        }
+
+    })
 
     onKeyRelease((key) => {
         direction = "";
@@ -289,7 +282,7 @@ scene("supermarket", () => {
 
     onKeyDown("down", () => {
         if (direction != "rl") {
-            if (player.pos.y + player.height + speed * dt() < height) {
+            if (player.pos.y + player.height + speed * dt() < gameHeight) {
                 moveX = 0;
                 moveY = speed * dt();
                 direction = "ud";
@@ -309,7 +302,7 @@ scene("supermarket", () => {
 
     onKeyDown("right", () => {
         if (direction != "ud") {
-            if (player.pos.x + player.width + speed * dt() < width) {
+            if (player.pos.x + player.width + speed * dt() < gameWidth) {
                 moveX = speed * dt();
                 moveY = 0;
                 direction = "rl";
@@ -321,40 +314,9 @@ scene("supermarket", () => {
         player.moveBy(moveX, moveY);
     });
 
-    player.onCollide("obstacle", () => {
-        if (direction === "ud") {
-            player.moveBy(0, -moveY);
-        } else if (direction === "rl") {
-            player.moveBy(-moveX, 0);
-        }
+    player.onCollide("water_collectible", (waterDrop) => {
+        destroy(waterDrop);
+        createWaterCollectibles();
+        waterLevel += 5;
     });
 });
-
-scene("gameOver", () => {
-    add([
-        text("You ran out of water!", { size: 70 }),
-        pos(center().x, center().y),
-        anchor("center"),
-    ]);
-
-    add([
-        text("Game Over", { size: 50 }),
-        pos(center().x, center().y + 100),
-        anchor("center"),
-    ]);
-});
-
-scene("gameWin", () => {
-    add([
-        text("You survived the Watermaster's wrath!", { size: 65 }),
-        pos(center().x, center().y),
-        anchor("center"),
-    ]);
-
-    add([
-        text("Congratulations!", { size: 50 }),
-        pos(center().x, center().y + 100),
-        anchor("center"),
-    ]);
-});
-
