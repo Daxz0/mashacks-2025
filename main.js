@@ -5,15 +5,16 @@ kaplay({
 });
 
 let waterLevel = 0;
-let health = 100;
-let happiness = 100;
-let hygiene = 100;
+// let health = 100;
+// let happiness = 100;
+// let hygiene = 100;
 let day = 1;
 
 loadSprite("house_bg", "sprites/house_bg.jpg");
 loadSprite("watermaster", "sprites/watermaster.png");
 loadSprite("water_sprite", "sprites/water_sprite.png");
 loadSprite("player", "sprites/player.png");
+loadSprite("water_bg", "sprites/collect_water_bg.jpg")
 loadSprite("start_bg", "sprites/start_bg.jpg").then(() => {
     scene("start", () => {
         const background = add([
@@ -170,54 +171,54 @@ scene("house", () => {
         color(11, 193, 246),
     ]);
 
-    const healthBar = add([
-        rect(200, 20),
-        pos(width() - 25, 70),
-        anchor("topright"),
-        "health",
-        color(0, 255, 0),
-    ]);
+    // const healthBar = add([
+    //     rect(200, 20),
+    //     pos(width() - 25, 70),
+    //     anchor("topright"),
+    //     "health",
+    //     color(0, 255, 0),
+    // ]);
 
-    const hygieneBar = add([
-        rect(200, 20),
-        pos(width() - 25, 120),
-        anchor("topright"),
-        "hygiene",
-        color(255, 255, 0),
-    ]);
+    // const hygieneBar = add([
+    //     rect(200, 20),
+    //     pos(width() - 25, 120),
+    //     anchor("topright"),
+    //     "hygiene",
+    //     color(255, 255, 0),
+    // ]);
 
-    const happinessBar = add([
-        rect(200, 20),
-        pos(width() - 25, 170),
-        anchor("topright"),
-        "happiness",
-        color(255, 165, 0),
-    ]);
+    // const happinessBar = add([
+    //     rect(200, 20),
+    //     pos(width() - 25, 170),
+    //     anchor("topright"),
+    //     "happiness",
+    //     color(255, 165, 0),
+    // ]);
 
     const waterDisplay = add([
-        text(`Water: ${waterLevel}`, { size: screen.height/50 }),
-        pos(45, 280),
+        text(`Water: ${waterLevel}`, { size: 40}),
+        pos(50, 400),
         anchor("left"),
         rotate(),
     ]);
 
-    add([
-        text("Health", { size: 20 }),
-        pos(width() - 25, 50),
-        anchor("topright"),
-    ]);
+    // add([
+    //     text("Health", { size: 20 }),
+    //     pos(width() - 25, 50),
+    //     anchor("topright"),
+    // ]);
 
-    add([
-        text("Hygiene", { size: 20 }),
-        pos(width() - 25, 100),
-        anchor("topright"),
-    ]);
+    // add([
+    //     text("Hygiene", { size: 20 }),
+    //     pos(width() - 25, 100),
+    //     anchor("topright"),
+    // ]);
 
-    add([
-        text("Happiness", { size: 20 }),
-        pos(width() - 25, 150),
-        anchor("topright"),
-    ]);
+    // add([
+    //     text("Happiness", { size: 20 }),
+    //     pos(width() - 25, 150),
+    //     anchor("topright"),
+    // ]);
 
     add([
         rect(400, 100),
@@ -246,10 +247,6 @@ scene("house", () => {
         waterDisplay.text = `Water: ${waterLevel}`;
 
         waterMeter.height = 300 * (waterLevel / 100);
-        waterMeter.pos.y = height() * 0.7 + (300 - waterMeter.height)
-        healthBar.width = 200 * (health / 100);
-        hygieneBar.width = 200 * (hygiene / 100);
-        happinessBar.width = 200 * (happiness / 100);
 
         if (waterLevel <= 0) {
             go("gameOver");
@@ -259,7 +256,16 @@ scene("house", () => {
     waterDisplay.angle = 90;
 });
 
-scene("supermarket", () => {
+scene("water_collect", () => {
+
+    const background = add([
+        sprite("water_bg"),
+        pos(0, 0),
+        fixed(),
+    ]);
+
+    background.scale = vec2(width() / background.width, height() / background.height);
+
     const player = add([
         sprite("player"),
         pos(100, 100),
@@ -285,19 +291,34 @@ scene("supermarket", () => {
 
     const gameWidth = width();
     const gameHeight = height();
-
+    
     const speed = gameWidth / 2;
-
+    
     let moveX = 0;
     let moveY = 0;
-    let timeLeft = 60;
-
+    let timeLeft = 30;
+    
+    const timer_water_bg = add([
+        pos(565,20),
+        rect(300, 100),
+        color(0,0,0),
+        opacity(0.5),
+        outline(4),
+        area(),
+    ])
     const timerText = add([
         text(`Time: ${timeLeft}`, { size: 40 }),
         pos(center().x, 50),
         anchor("center"),
         "timer"
     ]);
+
+    const waterText = add([
+        text(`Water: ${waterLevel}`, { size: 40 }),
+        pos(center().x, 90),
+        anchor("center"),
+    ]);
+
 
     onUpdate("timer", (timerText) => {
         timeLeft -= dt();
@@ -365,5 +386,92 @@ scene("supermarket", () => {
         destroy(waterDrop);
         createWaterCollectibles();
         waterLevel += 5;
+        waterText.text = `Water: ${waterLevel}`;
+    });
+});
+
+
+
+scene("gameOver", () => {
+    const background = add([
+        rect(width(), height()),
+        pos(0, 0),
+        color(0, 0, 0),
+    ]);
+
+    add([
+        text("Game Over", { size: 80 }),
+        pos(center().x, center().y - 50),
+        anchor("center"),
+    ]);
+
+    add([
+        text("You ran out of water!", { size: 40 }),
+        pos(center().x, center().y + 50),
+        anchor("center"),
+    ]);
+
+    const restartButton = add([
+        rect(300, 80),
+        pos(center().x, center().y + 150),
+        anchor("center"),
+        area(),
+        color(255, 0, 0),
+        "restart",
+    ]);
+
+    add([
+        text("Restart", { size: 40 }),
+        pos(center().x, center().y + 150),
+        anchor("center"),
+        color(255, 255, 255),
+    ]);
+
+    onClick("restart", () => {
+        waterLevel = 0;
+        day = 1;
+        go("start");
+    });
+});
+
+scene("gameWin", () => {
+    const background = add([
+        rect(width(), height()),
+        pos(0, 0),
+        color(0, 128, 0),
+    ]);
+
+    add([
+        text("You Survived!", { size: 80 }),
+        pos(center().x, center().y - 50),
+        anchor("center"),
+    ]);
+
+    add([
+        text("Congratulations! You made it through 30 days!", { size: 40 }),
+        pos(center().x, center().y + 50),
+        anchor("center"),
+    ]);
+
+    const restartButton = add([
+        rect(300, 80),
+        pos(center().x, center().y + 150),
+        anchor("center"),
+        area(),
+        color(0, 0, 255),
+        "restart",
+    ]);
+
+    add([
+        text("Restart", { size: 40 }),
+        pos(center().x, center().y + 150),
+        anchor("center"),
+        color(255, 255, 255),
+    ]);
+
+    onClick("restart", () => {
+        waterLevel = 0;
+        day = 1;
+        go("start");
     });
 });
