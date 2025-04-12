@@ -360,42 +360,41 @@ scene("water_collect", () => {
     var direction = "";
 
 
-    onKeyDown("up", () => {
+    onKeyDown(["up","w"], () => {
         if (direction != "rl" && canMove(player.pos.x, player.pos.y - speed * dt())) {
             player.moveBy(0, -speed * dt());
             direction = "ud";
         }
     });
 
-    onKeyDown("down", () => {
+    onKeyDown(["down","s"], () => {
         if (direction != "rl" && canMove(player.pos.x, player.pos.y + speed * dt())) {
             player.moveBy(0, speed * dt());
             direction = "ud";
         }
     });
 
-    onKeyDown("left", () => {
+    onKeyDown(["left","a"], () => {
         if (direction != "ud" && canMove(player.pos.x - speed * dt(), player.pos.y)) {
             player.moveBy(-speed * dt(), 0);
             direction = "rl";
         }
     });
 
-    onKeyDown("right", () => {
+    onKeyDown(["right","d"], () => {
         if (direction != "ud" && canMove(player.pos.x + speed * dt(), player.pos.y)) {
             player.moveBy(speed * dt(), 0);
             direction = "rl";
         }
     });
 
-    onUpdate(() => {
-        ticker++;
-        if(ticker % 10 == 0){
-            debug.log("X speed: " + moveX + "Y speed: " + moveY);
-            debug.log("X: " + player.pos.x + "Y: " + player.pos.y);
-        }
-        //player.moveBy(moveX, moveY);
-    });
+    // onUpdate(() => {
+    //     ticker++;
+    //     if(ticker % 10 == 0){
+    //         debug.log("X speed: " + moveX + "Y speed: " + moveY);
+    //         debug.log("X: " + player.pos.x + "Y: " + player.pos.y);
+    //     }
+    // });
 
     player.onCollide("water_collectible", (waterDrop) => {
         destroy(waterDrop);
