@@ -9,6 +9,7 @@ let waterLevel = 0;
 // let happiness = 100;
 // let hygiene = 100;
 let day = 1;
+let ticker = 0;
 
 loadSprite("house_bg", "sprites/house_bg.jpg");
 loadSprite("watermaster", "sprites/watermaster.png");
@@ -341,6 +342,15 @@ scene("water_collect", () => {
 
     })
 
+    function canMove(newX, newY) {
+        return (
+            newX >= 0 &&
+            newY >= 0 &&
+            newX + player.width <= gameWidth &&
+            newY + player.height <= gameHeight
+        );
+    }
+
     onKeyRelease((key) => {
         direction = "";
         moveX = 0;
@@ -349,48 +359,42 @@ scene("water_collect", () => {
 
     var direction = "";
 
+
     onKeyDown("up", () => {
-        if (direction != "rl") {
-            if (player.pos.y - speed * dt() > 0) {
-                moveX = 0;
-                moveY = -speed * dt();
-                direction = "ud";
-            }
+        if (direction != "rl" && canMove(player.pos.x, player.pos.y - speed * dt())) {
+            player.moveBy(0, -speed * dt());
+            direction = "ud";
         }
     });
 
     onKeyDown("down", () => {
-        if (direction != "rl") {
-            if (player.pos.y + player.height + speed * dt() < gameHeight) {
-                moveX = 0;
-                moveY = speed * dt();
-                direction = "ud";
-            }
+        if (direction != "rl" && canMove(player.pos.x, player.pos.y + speed * dt())) {
+            player.moveBy(0, speed * dt());
+            direction = "ud";
         }
     });
 
     onKeyDown("left", () => {
-        if (direction != "ud") {
-            if (player.pos.x - speed * dt() > 0) {
-                moveX = -speed * dt();
-                moveY = 0;
-                direction = "rl";
-            }
+        if (direction != "ud" && canMove(player.pos.x - speed * dt(), player.pos.y)) {
+            player.moveBy(-speed * dt(), 0);
+            direction = "rl";
         }
     });
 
     onKeyDown("right", () => {
-        if (direction != "ud") {
-            if (player.pos.x + player.width + speed * dt() < gameWidth) {
-                moveX = speed * dt();
-                moveY = 0;
-                direction = "rl";
-            }
+        if (direction != "ud" && canMove(player.pos.x + speed * dt(), player.pos.y)) {
+            player.moveBy(speed * dt(), 0);
+            direction = "rl";
         }
     });
 
     onUpdate(() => {
-        player.moveBy(moveX, moveY);
+        ticker++;
+        if(ticker % 10 == 0){
+            debug.log("X speed: " + moveX + "Y speed: " + moveY);
+            debug.log("X: " + player.pos.x + "Y: " + player.pos.y);
+        }
+        //player.moveBy(moveX, moveY);
     });
 
     player.onCollide("water_collectible", (waterDrop) => {
