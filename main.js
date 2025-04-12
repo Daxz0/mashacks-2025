@@ -111,18 +111,29 @@ scene("cutscene", () => {
 
     const textBox = add([
         pos(100, 100), 
-        text(textLines[0], { size: 50 }), 
-        area(), 
+        text(textLines[0], { 
+            size: 50, 
+            width: screen.width*0.6
+        }), 
+        area(),
         color(255, 0, 0), 
     ]);
+    
+    const clicky = add([
+        rect(screen.width, screen.height),
+        pos(0, 0),
+        color(255, 0, 0), 
+        opacity(0),
+        area(),
+    ])
 
     let currentIndex = 0;
 
-    textBox.onClick(() => {
+    clicky.onClick(() => {
         currentIndex = currentIndex + 1;
         textBox.text = textLines[currentIndex];
         if(currentIndex == textLines.length){
-            go("supermarket");
+            go("water_collect");
         }
     });
 
