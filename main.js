@@ -5,11 +5,12 @@ kaplay({
 });
 
 let waterLevel = 0;
+let collectedWater = 100;
 // let health = 100;
 // let happiness = 100;
 // let hygiene = 100;
 let day = 1;
-let ticker = 0;
+//let ticker = 0;
 
 //Setting stuff
 let delay = 0.02; //text delay between letters
@@ -107,7 +108,7 @@ scene("cutscene", () => {
 
     const master = add([
         sprite("watermaster"),
-        pos(width() - 700, 100),
+        pos(screen.width * 0.7, 100),
         scale(0.2, 0.2),
     ]);
 
@@ -122,9 +123,9 @@ scene("cutscene", () => {
 
     const textBox = add([
         pos(100, 100), 
-        text("A man appears", { 
+        text("THE WATERMASTER", { 
             size: 50, 
-            width: screen.width*0.6
+            width: screen.width * 0.7
         }), 
         area(),
         color(255, 0, 0), 
@@ -141,19 +142,18 @@ scene("cutscene", () => {
     let currentIndex = 0;
 
     clicky.onClick(() => {
-        typeOut(textLines[currentIndex]);
-        currentIndex++;
+        if(!isTyping){
+            i = 0;
+            current = "";
+            message = textLines[currentIndex];
+            isTyping = true;
+            currentIndex++;
+        }
+
         if(currentIndex >= textLines.length){
             go("water_collect");
         }
     });
-
-    function typeOut(m){
-        i = 0;
-        current = "";
-        message = m;
-        isTyping = true;
-    }
 
     onUpdate(() => {
         if(isTyping){
@@ -199,18 +199,24 @@ scene("house", () => {
         text("The water has been shut down...", { size: 30 }),
         pos(50, 200),
     ]);
+    
+    function updateWaterBar(){
+        waterMeter.height = 300 * (waterLevel / collectedWater);
+        waterMeter.pos.y = height() * 0.5 + (300 - waterMeter.height);
+    }
+
     add([
         rect(100, 300),
-        pos(10, height() * 0.7),
-        anchor("left"),
+        pos(10, height() * 0.5),
+        anchor("topleft"),
         "water",
         color(0, 0, 0),
     ]);
 
     const waterMeter = add([
         rect(100, 300),
-        pos(10, height() * 0.7),
-        anchor("left"),
+        pos(10, height() * 0.5),
+        anchor("topleft"),
         "water",
         color(11, 193, 246),
     ]);
@@ -290,8 +296,8 @@ scene("house", () => {
         dayText.text = "Day " + day;
         waterDisplay.text = `Water: ${waterLevel}`;
 
-        waterMeter.height = 300 * (waterLevel / 100);
-
+        updateWaterBar();
+        
         if (waterLevel <= 0) {
             go("gameOver");
         }
@@ -368,6 +374,7 @@ scene("water_collect", () => {
         timeLeft -= dt();
         timerText.text = `Time: ${Math.floor(timeLeft)}`;
         if (timeLeft <= 0) {
+            collectedWater = waterLevel;
             go("house");
             destroy(timerText);
         }
