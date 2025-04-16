@@ -11,6 +11,10 @@ let waterLevel = 0;
 let day = 1;
 let ticker = 0;
 
+//Setting stuff
+let delay = 0.02; //text delay between letters
+
+
 loadSprite("house_bg", "sprites/house_bg.jpg");
 loadSprite("watermaster", "sprites/watermaster.png");
 loadSprite("water_sprite", "sprites/water_sprite.png");
@@ -84,7 +88,7 @@ const textLines = [
     "There have been massive fires recently.",
     "In order to combat these, we will need to turn off our city's water supply",
     "We will turn back on the water supply in 30 days",
-    "Survive if you can. We are glad you were able to do your part.",
+    "Survive if you can! We are glad you were able to do your part.",
     "..."
 ]
 
@@ -94,7 +98,13 @@ function randomEvent() {
     return event.text;
 }
 
-scene("cutscene", () => {
+scene("cutscene", () => {    
+    let isTyping = false;
+    let current = "";
+    let i = 0;
+    let message = 0;
+    let elapse = 0;
+
     const master = add([
         sprite("watermaster"),
         pos(width() - 700, 100),
@@ -112,7 +122,7 @@ scene("cutscene", () => {
 
     const textBox = add([
         pos(100, 100), 
-        text(textLines[0], { 
+        text("A man appears", { 
             size: 50, 
             width: screen.width*0.6
         }), 
@@ -131,12 +141,34 @@ scene("cutscene", () => {
     let currentIndex = 0;
 
     clicky.onClick(() => {
-        currentIndex = currentIndex + 1;
-        textBox.text = textLines[currentIndex];
-        if(currentIndex == textLines.length){
+        typeOut(textLines[currentIndex]);
+        currentIndex++;
+        if(currentIndex >= textLines.length){
             go("water_collect");
         }
     });
+
+    function typeOut(m){
+        i = 0;
+        current = "";
+        message = m;
+        isTyping = true;
+    }
+
+    onUpdate(() => {
+        if(isTyping){
+            elapse += dt();
+            if(elapse > delay){
+                current += message[i];
+                i++;
+                textBox.text = current;
+                elapse = 0;
+            }
+            if(i >= message.length){
+                isTyping = false;
+            }
+        }
+    })
 
 })
 
