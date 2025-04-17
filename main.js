@@ -10,7 +10,6 @@ let collectedWater = 100;
 // let happiness = 100;
 // let hygiene = 100;
 let day = 1;
-//let ticker = 0;
 
 //Setting stuff
 let delay = 0.02; //text delay between letters
@@ -205,7 +204,7 @@ scene("house", () => {
         waterMeter.pos.y = height() * 0.5 + (300 - waterMeter.height);
     }
 
-    add([
+    const waterBack = add([
         rect(100, 300),
         pos(10, height() * 0.5),
         anchor("topleft"),
@@ -219,6 +218,15 @@ scene("house", () => {
         anchor("topleft"),
         "water",
         color(11, 193, 246),
+    ]);
+
+    const waterDisplay = add([
+        text(`Water: ${waterLevel}`, { 
+            size: 40,
+        }),
+        pos(30, height() * 0.5),
+        anchor("left"),
+        rotate(),
     ]);
 
     // const healthBar = add([
@@ -245,12 +253,6 @@ scene("house", () => {
     //     color(255, 165, 0),
     // ]);
 
-    const waterDisplay = add([
-        text(`Water: ${waterLevel}`, { size: 40}),
-        pos(50, 400),
-        anchor("left"),
-        rotate(),
-    ]);
 
     // add([
     //     text("Health", { size: 20 }),
@@ -426,14 +428,6 @@ scene("water_collect", () => {
             direction = "rl";
         }
     });
-
-    // onUpdate(() => {
-    //     ticker++;
-    //     if(ticker % 10 == 0){
-    //         debug.log("X speed: " + moveX + "Y speed: " + moveY);
-    //         debug.log("X: " + player.pos.x + "Y: " + player.pos.y);
-    //     }
-    // });
 
     player.onCollide("water_collectible", (waterDrop) => {
         destroy(waterDrop);
