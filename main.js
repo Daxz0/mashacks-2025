@@ -71,12 +71,53 @@ function banditAttackEffect() {
     waterLevel -= 1;
 }
 
+function thunderstormEffect() {
+    waterLevel -= 5;
+}
+
+function findRainwaterEffect() {
+    waterLevel += 7;
+}
+
+function findRaincloudsEffect() {
+    waterLevel += 10;
+}
+
+function wildlifeAttackEffect() {
+    waterLevel -= 3;
+}
+
+function giftFromStrangerEffect() {
+    waterLevel += 5;
+}
+
+function waterPurificationEffect() {
+    waterLevel += 10;
+}
+
+function droughtEffect() {
+    waterLevel -= 15;
+}
+
+function earthquakeEffect() {
+    waterLevel -= 8;
+}
+
 const events = [
+    { text: "A thunderstorm hits! Lose 5 water.", effect: thunderstormEffect },
+    { text: "You find a rainwater collection system! Gain 7 water.", effect: findRainwaterEffect },
+    { text: "A cloud full of rain passes by! You collect 10 water.", effect: findRaincloudsEffect },
+    { text: "Wildlife trashes your water storage! Lose 3 water.", effect: wildlifeAttackEffect },
+    { text: "A stranger gifts you some water! Gain 5 water.", effect: giftFromStrangerEffect },
+    { text: "You find a water purification device. Gain 10 water.", effect: waterPurificationEffect },
+    { text: "A drought has hit the region! Lose 15 water.", effect: droughtEffect },
+    { text: "An earthquake shakes the ground, damaging your supplies. Lose 8 water.", effect: earthquakeEffect },
     { text: "A heatwave hits! Lose 2 water.", effect: heatwaveEffect },
     { text: "You find an old well! Gain 3 water.", effect: findWellEffect },
     { text: "You have a normal day. No changes.", effect: normalDayEffect },
     { text: "Bandits steal some water! Lose 1 water.", effect: banditAttackEffect },
 ];
+
 
 const textLines = [
     "Hi, I'm your local watermaster",
@@ -94,6 +135,7 @@ function randomEvent() {
 }
 
 scene("cutscene", () => {
+    
     const master = add([
         sprite("watermaster"),
         pos(width() - 700, 100),
@@ -111,18 +153,25 @@ scene("cutscene", () => {
 
     const textBox = add([
         pos(100, 100), 
-        text(textLines[0], { size: 50 }), 
+        text(textLines[0], { size: 15 }), 
+        area(), 
+        color(255, 0, 0), 
+    ]);
+    const instructions = add([
+        pos(100, 500), 
+        text("(Click to continue...)", { size: 15 }), 
+        anchor("center"),
         area(), 
         color(255, 0, 0), 
     ]);
 
     let currentIndex = 0;
 
-    textBox.onClick(() => {
+    onClick(() => {
         currentIndex = currentIndex + 1;
         textBox.text = textLines[currentIndex];
-        if(currentIndex == textLines.length){
-            go("supermarket");
+        if(currentIndex >= textLines.length){
+            go("water_collect");
         }
     });
 
