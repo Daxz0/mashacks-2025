@@ -5,10 +5,15 @@ kaplay({
 });
 
 let waterLevel = 0;
+let collectedWater = 100;
 // let health = 100;
 // let happiness = 100;
 // let hygiene = 100;
 let day = 1;
+
+//Setting stuff
+let delay = 0.02; //text delay between letters
+
 
 loadSprite("house_bg", "sprites/house_bg.jpg");
 loadSprite("watermaster", "sprites/watermaster.png");
@@ -124,7 +129,7 @@ const textLines = [
     "There have been massive fires recently.",
     "In order to combat these, we will need to turn off our city's water supply",
     "We will turn back on the water supply in 30 days",
-    "Survive if you can. We are glad you were able to do your part.",
+    "Survive if you can! We are glad you were able to do your part.",
     "..."
 ]
 
@@ -134,11 +139,16 @@ function randomEvent() {
     return event.text;
 }
 
-scene("cutscene", () => {
-    
+scene("cutscene", () => {    
+    let isTyping = false;
+    let current = "";
+    let i = 0;
+    let message = 0;
+    let elapse = 0;
+
     const master = add([
         sprite("watermaster"),
-        pos(width() - 700, 100),
+        pos(screen.width * 0.7, 100),
         scale(0.2, 0.2),
     ]);
 
@@ -153,27 +163,52 @@ scene("cutscene", () => {
 
     const textBox = add([
         pos(100, 100), 
-        text(textLines[0], { size: 15 }), 
-        area(), 
+        text("THE WATERMASTER", { 
+            size: 50, 
+            width: screen.width * 0.7
+        }), 
+        area(),
         color(255, 0, 0), 
     ]);
-    const instructions = add([
-        pos(100, 500), 
-        text("(Click to continue...)", { size: 15 }), 
-        anchor("center"),
-        area(), 
+    
+    const clicky = add([
+        rect(screen.width, screen.height),
+        pos(0, 0),
         color(255, 0, 0), 
-    ]);
+        opacity(0),
+        area(),
+    ])
 
     let currentIndex = 0;
 
-    onClick(() => {
-        currentIndex = currentIndex + 1;
-        textBox.text = textLines[currentIndex];
+    clicky.onClick(() => {
+        if(!isTyping){
+            i = 0;
+            current = "";
+            message = textLines[currentIndex];
+            isTyping = true;
+            currentIndex++;
+        }
+
         if(currentIndex >= textLines.length){
             go("water_collect");
         }
     });
+
+    onUpdate(() => {
+        if(isTyping){
+            elapse += dt();
+            if(elapse > delay){
+                current += message[i];
+                i++;
+                textBox.text = current;
+                elapse = 0;
+            }
+            if(i >= message.length){
+                isTyping = false;
+            }
+        }
+    })
 
 })
 
@@ -204,20 +239,35 @@ scene("house", () => {
         text("The water has been shut down...", { size: 30 }),
         pos(50, 200),
     ]);
-    add([
+    
+    function updateWaterBar(){
+        waterMeter.height = 300 * (waterLevel / collectedWater);
+        waterMeter.pos.y = height() * 0.5 + (300 - waterMeter.height);
+    }
+
+    const waterBack = add([
         rect(100, 300),
-        pos(10, height() * 0.7),
-        anchor("left"),
+        pos(10, height() * 0.5),
+        anchor("topleft"),
         "water",
         color(0, 0, 0),
     ]);
 
     const waterMeter = add([
         rect(100, 300),
-        pos(10, height() * 0.7),
-        anchor("left"),
+        pos(10, height() * 0.5),
+        anchor("topleft"),
         "water",
         color(11, 193, 246),
+    ]);
+
+    const waterDisplay = add([
+        text(`Water: ${waterLevel}`, { 
+            size: 40,
+        }),
+        pos(30, height() * 0.5),
+        anchor("left"),
+        rotate(),
     ]);
 
     // const healthBar = add([
@@ -244,12 +294,6 @@ scene("house", () => {
     //     color(255, 165, 0),
     // ]);
 
-    const waterDisplay = add([
-        text(`Water: ${waterLevel}`, { size: 40}),
-        pos(50, 400),
-        anchor("left"),
-        rotate(),
-    ]);
 
     // add([
     //     text("Health", { size: 20 }),
@@ -295,8 +339,8 @@ scene("house", () => {
         dayText.text = "Day " + day;
         waterDisplay.text = `Water: ${waterLevel}`;
 
-        waterMeter.height = 300 * (waterLevel / 100);
-
+        updateWaterBar();
+        
         if (waterLevel <= 0) {
             go("gameOver");
         }
@@ -373,11 +417,21 @@ scene("water_collect", () => {
         timeLeft -= dt();
         timerText.text = `Time: ${Math.floor(timeLeft)}`;
         if (timeLeft <= 0) {
+            collectedWater = waterLevel;
             go("house");
             destroy(timerText);
         }
 
     })
+
+    function canMove(newX, newY) {
+        return (
+            newX >= 0 &&
+            newY >= 0 &&
+            newX + player.width <= gameWidth &&
+            newY + player.height <= gameHeight
+        );
+    }
 
     onKeyRelease((key) => {
         direction = "";
@@ -387,48 +441,33 @@ scene("water_collect", () => {
 
     var direction = "";
 
-    onKeyDown("up", () => {
-        if (direction != "rl") {
-            if (player.pos.y - speed * dt() > 0) {
-                moveX = 0;
-                moveY = -speed * dt();
-                direction = "ud";
-            }
+
+    onKeyDown(["up","w"], () => {
+        if (direction != "rl" && canMove(player.pos.x, player.pos.y - speed * dt())) {
+            player.moveBy(0, -speed * dt());
+            direction = "ud";
         }
     });
 
-    onKeyDown("down", () => {
-        if (direction != "rl") {
-            if (player.pos.y + player.height + speed * dt() < gameHeight) {
-                moveX = 0;
-                moveY = speed * dt();
-                direction = "ud";
-            }
+    onKeyDown(["down","s"], () => {
+        if (direction != "rl" && canMove(player.pos.x, player.pos.y + speed * dt())) {
+            player.moveBy(0, speed * dt());
+            direction = "ud";
         }
     });
 
-    onKeyDown("left", () => {
-        if (direction != "ud") {
-            if (player.pos.x - speed * dt() > 0) {
-                moveX = -speed * dt();
-                moveY = 0;
-                direction = "rl";
-            }
+    onKeyDown(["left","a"], () => {
+        if (direction != "ud" && canMove(player.pos.x - speed * dt(), player.pos.y)) {
+            player.moveBy(-speed * dt(), 0);
+            direction = "rl";
         }
     });
 
-    onKeyDown("right", () => {
-        if (direction != "ud") {
-            if (player.pos.x + player.width + speed * dt() < gameWidth) {
-                moveX = speed * dt();
-                moveY = 0;
-                direction = "rl";
-            }
+    onKeyDown(["right","d"], () => {
+        if (direction != "ud" && canMove(player.pos.x + speed * dt(), player.pos.y)) {
+            player.moveBy(speed * dt(), 0);
+            direction = "rl";
         }
-    });
-
-    onUpdate(() => {
-        player.moveBy(moveX, moveY);
     });
 
     player.onCollide("water_collectible", (waterDrop) => {
